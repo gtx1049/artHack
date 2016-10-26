@@ -1,5 +1,7 @@
 package com.example.tomek.notepad;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
@@ -7,6 +9,7 @@ import android.os.Environment;
 import android.text.format.DateFormat;
 import android.util.Log;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -204,6 +207,9 @@ public class RecordAct {
 		int i = 0;
 		int j = 1;
 
+		Bitmap bitmap = null;
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		bitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);
 		i += 1;
 		j = i - 2;
 		for(int q = 0; q < 999; q++){
@@ -243,7 +249,340 @@ public class RecordAct {
 			j = i * 5;
 		}
 		i = j % 2;
+		byte[] image = null;
+		BitmapFactory.decodeByteArray(image, 0, image.length);
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
 
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+		stream = new ByteArrayOutputStream();
+		bitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+		stream = new ByteArrayOutputStream();
+		bitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		stream = new ByteArrayOutputStream();
+		bitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+		BitmapFactory.decodeByteArray(image, 0, image.length);
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+		BitmapFactory.decodeByteArray(image, 0, image.length);
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+		stream = new ByteArrayOutputStream();
+		bitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+		stream = new ByteArrayOutputStream();
+		bitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+		BitmapFactory.decodeByteArray(image, 0, image.length);
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+		BitmapFactory.decodeByteArray(image, 0, image.length);
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+		stream = new ByteArrayOutputStream();
+		bitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+		stream = new ByteArrayOutputStream();
+		bitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+
+		i += 1;
+		stream = new ByteArrayOutputStream();
+		bitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+		BitmapFactory.decodeByteArray(image, 0, image.length);
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+		BitmapFactory.decodeByteArray(image, 0, image.length);
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+
+		i += 1;
+		j = i - 2;
+		for(int q = 0; q < 999; q++){
+			i = j + 3;
+		}
+		if(i == 876){
+			j = i * 5;
+		}
+		i = j % 2;
+		stream = new ByteArrayOutputStream();
+		bitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);
+		stream = new ByteArrayOutputStream();
+		bitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);
 		i += 1;
 		j = i - 2;
 		for(int q = 0; q < 999; q++){
@@ -283,326 +622,8 @@ public class RecordAct {
 			j = i * 5;
 		}
 		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
-		i += 1;
-		j = i - 2;
-		for(int q = 0; q < 999; q++){
-			i = j + 3;
-		}
-		if(i == 876){
-			j = i * 5;
-		}
-		i = j % 2;
-
+		stream = new ByteArrayOutputStream();
+		bitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);
 		i += 1;
 		j = i - 2;
 		for(int q = 0; q < 999; q++){

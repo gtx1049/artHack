@@ -1310,13 +1310,63 @@ unsigned int getOatCrcOffset()
     return crc_offset;
 }
 
+int countingMaping(FILE* oatfile)
+{
+    int total_size;
+    int pc_to_dex_size;
+    int dex_to_pc_size;
+    int i;
+    int begin, end;
+
+    begin = ftell(oatfile);
+
+    total_size = getLength(oatfile);
+    pc_to_dex_size = getLength(oatfile);
+    for(i = 0; i < pc_to_dex_size; i++)
+    {
+        getLength(oatfile);
+        getLength(oatfile);
+    }
+
+    dex_to_pc_size = total_size - pc_to_dex_size;
+    for(i = 0; i < dex_to_pc_size; i++)
+    {
+        getLength(oatfile);
+        getLength(oatfile);
+    }
+    end = ftell(oatfile);
+    fseek(oatfile, begin, SEEK_SET);
+
+    return end - begin;
+
+}
+
+int countingVmap(FILE* oatfile)
+{
+    int total_size;
+
+    int i;
+    int begin, end;
+
+    begin = ftell(oatfile);
+
+    total_size = getLength(oatfile);
+
+    for(i = 0; i < total_size; i++)
+    {
+        getLength(oatfile);
+    }
+    end = ftell(oatfile);
+    fseek(oatfile, begin, SEEK_SET);
+
+    return end - begin;
+}
+
 void createMehtodHeader(FILE* oatfile, FILE* methodhaeder, int oatdata_offset, oatmethodheader oat_method_header, int method_offset)
 {
     int file_ptr;
     int mapping_size;
     int vmap_size;
-
-    int lensize;
 
     char* mapping_table;
     char* vmap_table;
@@ -1331,31 +1381,28 @@ void createMehtodHeader(FILE* oatfile, FILE* methodhaeder, int oatdata_offset, o
 
 
     fseek(oatfile, method_offset + oatdata_offset - oat_method_header.mapping_table_offset_, SEEK_SET);
-    mapping_size = getLength(oatfile);
-    lensize = ftell(oatfile) - (method_offset + oatdata_offset - oat_method_header.mapping_table_offset_);
+    mapping_size = countingMaping(oatfile);
 
     printf("mapping_offset : %x\n", method_offset + oatdata_offset - oat_method_header.mapping_table_offset_);
-    printf("mapping_size : %d, lensize : %d\n", mapping_size, lensize);
+    printf("mapping_size : %d\n", mapping_size);
     fseek(oatfile, method_offset + oatdata_offset - oat_method_header.mapping_table_offset_, SEEK_SET);
-    mapping_table = (char*)malloc(mapping_size + lensize);
-    fread(mapping_table, 1, mapping_size + lensize, oatfile);
-    int wlen = mapping_size + lensize;
-    fwrite(&wlen, 1, sizeof(int), methodhaeder);
-    fwrite(mapping_table, 1, mapping_size + lensize, methodhaeder);
+    mapping_table = (char*)malloc(mapping_size);
+    fread(mapping_table, 1, mapping_size, oatfile);
+
+    fwrite(&mapping_size, 1, sizeof(int), methodhaeder);
+    fwrite(mapping_table, 1, mapping_size, methodhaeder);
     free(mapping_table);
 
     fseek(oatfile, method_offset + oatdata_offset - oat_method_header.vmap_table_offset_, SEEK_SET);
-    vmap_size = getLength(oatfile);
-    lensize = ftell(oatfile) - (method_offset + oatdata_offset - oat_method_header.vmap_table_offset_);
+    vmap_size = countingVmap(oatfile);
 
     printf("vmap_offset : %x\n", method_offset + oatdata_offset - oat_method_header.vmap_table_offset_);
-    printf("vmap_size : %d, lensize : %d\n", vmap_size, lensize);
+    printf("vmap_size : %d\n", vmap_size);
     fseek(oatfile, method_offset + oatdata_offset - oat_method_header.vmap_table_offset_, SEEK_SET);
-    vmap_table = (char*)malloc(vmap_size + lensize);
-    fread(vmap_table, 1, vmap_size + lensize, oatfile);
-    wlen = vmap_size + lensize;
-    fwrite(&wlen, 1, sizeof(int), methodhaeder);
-    fwrite(vmap_table, 1, vmap_size + lensize, methodhaeder);
+    vmap_table = (char*)malloc(vmap_size);
+    fread(vmap_table, 1, vmap_size, oatfile);
+    fwrite(&vmap_size, 1, sizeof(int), methodhaeder);
+    fwrite(vmap_table, 1, vmap_size, methodhaeder);
     free(vmap_table);
 
     fseek(oatfile, file_ptr, SEEK_SET);
