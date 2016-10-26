@@ -15,6 +15,8 @@
 #define METHOD_MEM_COUNT 30
 
 #define LOGI(...)  __android_log_print(ANDROID_LOG_INFO, "ARTHACK", __VA_ARGS__)
+//#define LOGI(...)
+#define MEMDUMP 1
 #define ALIGN_MEM(ptr) ((((unsigned long)ptr)) & 0xfffff000)
 
 #define METHOD_ACCESS_FLAG(m) m + 5
@@ -34,16 +36,6 @@ static void logOut(const char* func,char** method)
 {
     for(int i = 0; i < METHOD_MEM_COUNT; i++)
         LOGI("%s : %d offset: %x", func, i, *(method + i));
-}
-
-static void writeTofile(unsigned char* buf, int len)
-{
-    FILE *fp = fopen("/storage/sdcard0/buffer","wb");
-    if (fp)
-    {
-        fwrite(buf, len, 1, fp);
-        fclose(fp);
-    }
 }
 
 static int countZero(int index, char* bitmap, int bitmap_size)
@@ -130,8 +122,6 @@ static void loadMethodbyIndex(int index, FILE* fptr, int* size, const char* clas
     init_aes((unsigned char*)mypassword);
     TFFS_ENCRYPT(buf, 123, blocks, 0, 0);
     //get buffer
-
-    writeTofile(buf, sizeof(char) * 512 * blocks);
 
     //deal the bitmap if has
     short type;
@@ -270,12 +260,16 @@ void dumpMem(const char* filename, void* mem)
 {
     FILE* fp;
 
-    fp = fopen(filename,"wb");
-    if (fp)
+    if(MEMDUMP)
     {
-        fwrite(mem, 0x2000, 1, fp);
-        fclose(fp);
+        fp = fopen(filename,"wb");
+        if (fp)
+        {
+            fwrite(mem, 0x2000, 1, fp);
+            fclose(fp);
+        }
     }
+
 }
 
 void recoveryMethod(JNIEnv * env, const char* methodname, const char* sign, int index, const char* classname, const char* shortclassname)
