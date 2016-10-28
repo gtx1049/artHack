@@ -66,6 +66,40 @@ JNIEXPORT jstring JNICALL Java_com_example_tomek_notepad_NoteActivity_init(JNIEn
 JNIEXPORT jstring JNICALL Java_com_example_tomek_notepad_NoteActivity_initPwd(JNIEnv *, jobject, jstring);
 
 typedef unsigned int uint32_t;
+typedef unsigned char uint8_t;
+typedef unsigned short uint16_t;
+
+typedef struct oatheader
+{
+  uint8_t magic_[4];
+  uint8_t version_[4];
+  uint32_t adler32_checksum_;
+
+  uint32_t instruction_set_;
+  uint32_t instruction_set_features_;
+
+  uint32_t dex_file_count_;
+  uint32_t executable_offset_;
+  uint32_t interpreter_to_interpreter_bridge_offset_;
+  uint32_t interpreter_to_compiled_code_bridge_offset_;
+  uint32_t jni_dlsym_lookup_offset_;
+  uint32_t portable_imt_conflict_trampoline_offset_;
+  uint32_t portable_resolution_trampoline_offset_;
+  uint32_t portable_to_interpreter_bridge_offset_;
+  uint32_t quick_generic_jni_trampoline_offset_;
+  uint32_t quick_imt_conflict_trampoline_offset_;
+  uint32_t quick_resolution_trampoline_offset_;
+  uint32_t quick_to_interpreter_bridge_offset_;
+
+  // The amount that the image this oat is associated with has been patched.
+  uint32_t image_patch_delta_;
+
+  uint32_t image_file_location_oat_checksum_;
+  uint32_t image_file_location_oat_data_begin_;
+
+  uint32_t key_value_store_size_;
+
+}oatheader;
 
 typedef struct oatmethodheader
 {

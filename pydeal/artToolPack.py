@@ -263,10 +263,16 @@ def modifyDex(targetfile, method_ret, dex_begin):
 	f.close()
 
 def repackApk(liblen):
-
+		
 	lib = open('libJniTest.so', 'r+b')
 	lib.seek(0, 2)
 	lib.write(struct.pack('i', liblen))
+	
+	image_record = open('iamgerecord', 'r+b')
+	for i in range(0, 4):
+		b = image_record.read(1)
+		lib.write(b)
+	
 	lib.close()
 
 	cmd = 'copy /y libJniTest.so arthack_unpack\\lib\\armeabi\\libJniTest.so'

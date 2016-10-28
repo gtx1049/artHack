@@ -803,6 +803,7 @@ int* dealARTFile(const char* classname)
     long file_offset;
 
     FILE* pf_base;
+    FILE* image_record;
 
     elfheader elf_header;
     sectionheader section_header;
@@ -885,6 +886,10 @@ int* dealARTFile(const char* classname)
     fread(&oat_header, 1, sizeof(oat_header), pf_base);
 
     //printf("key_value_store_ %d \n", oat_header.key_value_store_size_);
+
+    image_record = fopen("imagerecord", "wb");
+    fwrite(&oat_header.image_file_location_oat_data_begin_, 1, sizeof(int), image_record);
+    fclose(image_record);
 
     fseek(pf_base, oat_header.key_value_store_size_, SEEK_CUR);
 

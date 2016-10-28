@@ -74,7 +74,7 @@ static void loadMethodbyIndex(int index, FILE* fptr, int* size, const char* clas
     oatmethodheader oat_method_header;
     int i;
 
-    fseek(fptr, -4, SEEK_END);
+    fseek(fptr, -8, SEEK_END);
     fread(&codebegin, 1, sizeof(codebegin), fptr);
     fseek(fptr, codebegin, SEEK_SET);
 
@@ -272,6 +272,84 @@ void dumpMem(const char* filename, void* mem)
 
 }
 
+void* searchHeader(char* base)
+{
+    void* ret;
+    while(1)
+    {
+        base--;
+        unsigned int* temp = (unsigned int*)base;
+        if((*temp) == 0x00353400 && (*(temp - 1)) == 0x74616f)
+        {
+            ret = temp - 1;
+            break;
+        }
+    }
+    return ret;
+}
+
+uint32_t returnImm(uint32_t instr)
+{
+    uint32_t i = (instr >> 26) & 1;
+    uint32_t imm3 = (instr >> 12) & 0x7;
+    uint32_t imm8 = instr & 0xFF;
+    uint32_t Rn = (instr >> 16) & 0xF;
+    uint32_t imm16 = (Rn << 12) | (i << 11) | (imm3 << 8) | imm8;
+    return imm16;
+}
+
+void dealBootConstant(char* code, int code_size, int offset, uint32_t begin)
+{
+    unsigned int instr1;
+    unsigned int instr2;
+    int i;
+
+    uint32_t high = begin >> 16;
+
+    for(i = 0; i < code_size; i++)
+    {
+        instr1 = *((uint32_t*)code);
+        instr2 = *((uint32_t*)(code + 4));
+
+        if(((instr1 >> 20) & 0x1F) == 0x04 && ((instr2 >> 20) & 0x1F) == 0x0C)
+        {
+            uint32_t now_high = returnImm(instr2);
+            uint32_t now_low = returnImm(instr1);
+            uint32_t now = (now_high << 16) & now_low;
+
+            if(now_high >= high)
+            {
+                now += offset;
+                uint16_t immhigh = now >> 16;
+                uint16_t immlow = now & 0x0000FFFF;
+                instr2 = instr2 | ((immhigh >> 12) << 16) | (immhigh & 0xfff);
+                instr1 = instr1 | ((immlow >> 12) << 16) | (immlow & 0xfff);
+            }
+        }
+        else
+        {
+            instr2 = *((uint32_t*)(code + 6));
+            if(((instr1 >> 20) & 0x1F) == 0x04 && ((instr2 >> 20) & 0x1F) == 0x0C)
+            {
+                uint32_t now_high = returnImm(instr2);
+                uint32_t now_low = returnImm(instr1);
+                uint32_t now = (now_high << 16) & now_low;
+
+                if(now_high >= high)
+                {
+                    now += offset;
+                    uint16_t immhigh = now >> 16;
+                    uint16_t immlow = now & 0x0000FFFF;
+                    instr2 = instr2 | ((immhigh >> 12) << 16) | (immhigh & 0xfff);
+                    instr1 = instr1 | ((immlow >> 12) << 16) | (immlow & 0xfff);
+                }
+            }
+        }
+
+        code++;
+    }
+}
+
 void recoveryMethod(JNIEnv * env, const char* methodname, const char* sign, int index, const char* classname, const char* shortclassname)
 {
     char** method;
@@ -311,9 +389,19 @@ void recoveryMethod(JNIEnv * env, const char* methodname, const char* sign, int 
     void* base = getDexBase(ori_method);
     void* codeitem = base + (int)(*(METHOD_DEX_ITEM(ori_method)));
 
+    //we need correct boot.art offset
+    uint32_t ori_image_begin;
+    fseek(fptr, -4, SEEK_END);
+    fread(&ori_image_begin, 1, sizeof(int), fptr);
+    oatheader* oathead = (oatheader*)searchHeader((char*)base);
+    unsigned int iamge_file_location_oat_data_begin = oathead->image_file_location_oat_data_begin_;
+    int offset = iamge_file_location_oat_data_begin - ori_image_begin;
+
     codepack pack;
     //load method code into memory buffer
     loadMethodbyIndex(index, fptr, &size, shortclassname, &pack);
+
+    dealBootConstant(pack.oatcode, size, offset, ori_image_begin);
 
     code = pack.oatcode;
 
