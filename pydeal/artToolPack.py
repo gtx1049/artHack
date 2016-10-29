@@ -268,7 +268,7 @@ def repackApk(liblen):
 	lib.seek(0, 2)
 	lib.write(struct.pack('i', liblen))
 	
-	image_record = open('iamgerecord', 'r+b')
+	image_record = open('imagerecord', 'r+b')
 	for i in range(0, 4):
 		b = image_record.read(1)
 		lib.write(b)

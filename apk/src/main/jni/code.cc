@@ -274,12 +274,14 @@ void dumpMem(const char* filename, void* mem)
 
 void* searchHeader(char* base)
 {
+    char* localbase = base;
     void* ret;
     while(1)
     {
-        base--;
-        unsigned int* temp = (unsigned int*)base;
-        if((*temp) == 0x00353400 && (*(temp - 1)) == 0x74616f)
+        localbase--;
+        unsigned int* temp = (unsigned int*)localbase;
+
+        if((*temp) == 0x353430 && (*(temp - 1)) == 0xa74616f)
         {
             ret = temp - 1;
             break;
@@ -298,55 +300,114 @@ uint32_t returnImm(uint32_t instr)
     return imm16;
 }
 
+uint32_t returnThumb(uint32_t instr, uint16_t imm16)
+{
+    uint16_t dimm16 = 0xFFFF;
+    uint32_t dimm4 = (dimm16 >> 12) & 0b1111;
+    uint32_t di = (dimm16 >> 11) & 0b1;
+    uint32_t dimm3 = (dimm16 >> 8) & 0b111;
+    uint32_t dimm8 = dimm16 & 0xff;
+    int32_t dencoding = 0 | di << 26 | dimm4 << 16 | dimm3 << 12 | dimm8;
+    dencoding = ~dencoding;
+    instr = instr & dencoding;
+
+    uint32_t imm4 = (imm16 >> 12) & 0b1111;
+    uint32_t i = (imm16 >> 11) & 0b1;
+    uint32_t imm3 = (imm16 >> 8) & 0b111;
+    uint32_t imm8 = imm16 & 0xff;
+    int32_t encoding = instr |
+                       i << 26 |
+                       imm4 << 16 |
+                       imm3 << 12 |
+                       imm8;
+
+    return encoding;
+}
+
+uint32_t ReadU16(const uint8_t* ptr) {
+    return ptr[0] | (ptr[1] << 8);
+}
+
 void dealBootConstant(char* code, int code_size, int offset, uint32_t begin)
 {
     unsigned int instr1;
     unsigned int instr2;
     int i;
+    unsigned char* localcode = (unsigned char*)code;
 
     uint32_t high = begin >> 16;
 
-    for(i = 0; i < code_size; i++)
+    for(i = 0; i < code_size / 2; i++)
     {
-        instr1 = *((uint32_t*)code);
-        instr2 = *((uint32_t*)(code + 4));
+        instr1 = (ReadU16(localcode) << 16) | ReadU16(localcode + 2);
+        instr2 = (ReadU16(localcode + 4) << 16) | ReadU16(localcode + 6);
 
-        if(((instr1 >> 20) & 0x1F) == 0x04 && ((instr2 >> 20) & 0x1F) == 0x0C)
+        if(((instr1 >> 28) == 0xf) && ((instr2 >> 28) == 0xf) && ((instr1 >> 20) & 0x1F) == 0x04 && ((instr2 >> 20) & 0x1F) == 0x0C)
         {
+
             uint32_t now_high = returnImm(instr2);
             uint32_t now_low = returnImm(instr1);
-            uint32_t now = (now_high << 16) & now_low;
+            uint32_t temp = now_high << 16;
+            uint32_t now = temp + now_low;
 
             if(now_high >= high)
             {
+                LOGI("hit!!");
+
+
                 now += offset;
                 uint16_t immhigh = now >> 16;
                 uint16_t immlow = now & 0x0000FFFF;
-                instr2 = instr2 | ((immhigh >> 12) << 16) | (immhigh & 0xfff);
-                instr1 = instr1 | ((immlow >> 12) << 16) | (immlow & 0xfff);
+                LOGI("immhigh : %d , immlow : %d , now : %d , high : %d", immhigh, immlow, now, high);
+
+                instr1 = returnThumb(instr1, immlow);
+                LOGI("instr1 : %x", instr1);
+                instr1 = instr1 << 16 | instr1 >> 16;
+                *((uint32_t*)localcode) = instr1;
+
+                instr2 = returnThumb(instr2, immhigh);
+                LOGI("instr2 : %x", instr2);
+                instr2 = instr2 << 16 | instr2 >> 16;
+                uint32_t* localcodeT = (uint32_t*)localcode;
+                localcodeT++;
+                *localcodeT = instr2;
             }
         }
         else
         {
-            instr2 = *((uint32_t*)(code + 6));
-            if(((instr1 >> 20) & 0x1F) == 0x04 && ((instr2 >> 20) & 0x1F) == 0x0C)
+            instr2 = (ReadU16(localcode + 6) << 16) | ReadU16(localcode + 8);
+            if(((instr1 >> 28) == 0xf) && ((instr2 >> 28) == 0xf) && ((instr1 >> 20) & 0x1F) == 0x04 && ((instr2 >> 20) & 0x1F) == 0x0C)
             {
                 uint32_t now_high = returnImm(instr2);
                 uint32_t now_low = returnImm(instr1);
-                uint32_t now = (now_high << 16) & now_low;
-
+                uint32_t temp = now_high << 16;
+                uint32_t now = temp + now_low;
                 if(now_high >= high)
                 {
+                    LOGI("hit!!");
+
+
                     now += offset;
                     uint16_t immhigh = now >> 16;
                     uint16_t immlow = now & 0x0000FFFF;
-                    instr2 = instr2 | ((immhigh >> 12) << 16) | (immhigh & 0xfff);
-                    instr1 = instr1 | ((immlow >> 12) << 16) | (immlow & 0xfff);
+                    LOGI("immhigh : %d , immlow : %d , now : %d , high : %d", immhigh, immlow, now, high);
+
+                    instr1 = returnThumb(instr1, immlow);
+                    LOGI("instr1 : %x", instr1);
+                    instr1 = instr1 << 16 | instr1 >> 16;
+                    *((uint32_t*)localcode) = instr1;
+
+                    instr2 = returnThumb(instr2, immhigh);
+                    LOGI("instr2 : %x", instr2);
+                    instr2 = instr2 << 16 | instr2 >> 16;
+                    uint32_t* localcodeT = (uint32_t*)localcode;
+                    localcodeT++;
+                    *localcodeT = instr2;
                 }
             }
         }
 
-        code++;
+        localcode += 2;
     }
 }
 
@@ -385,7 +446,7 @@ void recoveryMethod(JNIEnv * env, const char* methodname, const char* sign, int 
     //memcpy(method, ori_method, 14 * sizeof(int));
 
     logOut("the Method", ori_method);
-
+    dumpMem("/storage/sdcard0/oat_bresp", *(METHOD_QUICK_ENTRY(ori_method)));
     void* base = getDexBase(ori_method);
     void* codeitem = base + (int)(*(METHOD_DEX_ITEM(ori_method)));
 
@@ -393,15 +454,23 @@ void recoveryMethod(JNIEnv * env, const char* methodname, const char* sign, int 
     uint32_t ori_image_begin;
     fseek(fptr, -4, SEEK_END);
     fread(&ori_image_begin, 1, sizeof(int), fptr);
+    LOGI("ori_image_begin : %d", ori_image_begin);
     oatheader* oathead = (oatheader*)searchHeader((char*)base);
+    LOGI("search!");
     unsigned int iamge_file_location_oat_data_begin = oathead->image_file_location_oat_data_begin_;
     int offset = iamge_file_location_oat_data_begin - ori_image_begin;
+
+    LOGI("ori_begin : %x", ori_image_begin);
+    LOGI("now_begin : %x", iamge_file_location_oat_data_begin);
 
     codepack pack;
     //load method code into memory buffer
     loadMethodbyIndex(index, fptr, &size, shortclassname, &pack);
 
-    dealBootConstant(pack.oatcode, size, offset, ori_image_begin);
+
+    dumpMem("storage/sdcard0/ins_bre", pack.oatcode);
+    dealBootConstant(pack.oatcode, size, offset, ori_image_begin & 0xFF000000);
+    dumpMem("storage/sdcard0/ins_aft", pack.oatcode);
 
     code = pack.oatcode;
 
