@@ -210,6 +210,8 @@ static void loadMethodbyIndex(int index, FILE* fptr, int* size, const char* clas
     int headerlen;
     fread(&headerlen, 1, 4, fptr);
 
+    int diff_begin = ftell(fptr) + headerlen;
+
     oatmethodheader2 my_oatmethodheader;
     int mapping_size;
     int vmap_size;
@@ -238,6 +240,21 @@ static void loadMethodbyIndex(int index, FILE* fptr, int* size, const char* clas
     fread(pack->vmap_table, 1, vmap_size, fptr);
     LOGI("vmap_size : %d\n", vmap_size);
     pack->header2 = my_oatmethodheader;
+
+    fseek(fptr, diff_begin, SEEK_SET);
+    int difflen;
+    fread(&difflen, 1, 4, fptr);
+    for(i = 0; i < index - 1; i++)
+    {
+        fread(&difflen, 1, sizeof(int),fptr);
+        LOGI("read difflen : %d", difflen);
+        fseek(fptr, difflen * sizeof(int), SEEK_CUR);
+    }
+
+    fread(&difflen, 1, sizeof(int),fptr);
+    pack->diff_record = (unsigned char*)malloc(difflen * 4);
+    fread(pack->diff_record, 1, difflen * sizeof(4), fptr);
+    pack->diff_len = difflen;
 
     return;
 }
@@ -328,86 +345,49 @@ uint32_t ReadU16(const uint8_t* ptr) {
     return ptr[0] | (ptr[1] << 8);
 }
 
-void dealBootConstant(char* code, int code_size, int offset, uint32_t begin)
+void dealBootConstant(char* code, int code_size, int offset, codepack *pack)
 {
     unsigned int instr1;
     unsigned int instr2;
     int i;
     unsigned char* localcode = (unsigned char*)code;
 
-    uint32_t high = begin >> 16;
-
-    for(i = 0; i < code_size / 2; i++)
+    unsigned char* begin = pack->diff_record;
+    LOGI("diff len : %d", pack->diff_len);
+    for(i = 0; i < pack->diff_len * 4; i += 8)
     {
-        instr1 = (ReadU16(localcode) << 16) | ReadU16(localcode + 2);
-        instr2 = (ReadU16(localcode + 4) << 16) | ReadU16(localcode + 6);
+        unsigned int* tempaddr = (uint32_t*)(begin + i);
+        int pos1 = *(tempaddr);
+        tempaddr = (uint32_t*)(begin + i + 4);
+        int pos2 = *(tempaddr);
 
-        if(((instr1 >> 28) == 0xf) && ((instr2 >> 28) == 0xf) && ((instr1 >> 20) & 0x1F) == 0x04 && ((instr2 >> 20) & 0x1F) == 0x0C)
-        {
+        //LOGI("pos1 : %d", pos1);
+        //LOGI("pos2 : %d", pos2);
 
-            uint32_t now_high = returnImm(instr2);
-            uint32_t now_low = returnImm(instr1);
-            uint32_t temp = now_high << 16;
-            uint32_t now = temp + now_low;
+        instr1 = (ReadU16(localcode + pos1) << 16) | ReadU16(localcode + pos1 + 2);
+        instr2 = (ReadU16(localcode + pos2) << 16) | ReadU16(localcode + pos2 + 2);
 
-            if(now_high >= high)
-            {
-                LOGI("hit!!");
+        uint32_t now_high = returnImm(instr2);
+        uint32_t now_low = returnImm(instr1);
+        uint32_t temp = now_high << 16;
+        uint32_t now = temp + now_low;
 
+        now += offset;
+        uint16_t immhigh = now >> 16;
+        uint16_t immlow = now & 0x0000FFFF;
 
-                now += offset;
-                uint16_t immhigh = now >> 16;
-                uint16_t immlow = now & 0x0000FFFF;
-                LOGI("immhigh : %d , immlow : %d , now : %d , high : %d", immhigh, immlow, now, high);
+        instr1 = returnThumb(instr1, immlow);
+        //LOGI("instr1 : %x", instr1);
+        instr1 = instr1 << 16 | instr1 >> 16;
+        uint32_t* localcodeT = (uint32_t*)(localcode + pos1);
+        *localcodeT = instr1;
 
-                instr1 = returnThumb(instr1, immlow);
-                LOGI("instr1 : %x", instr1);
-                instr1 = instr1 << 16 | instr1 >> 16;
-                *((uint32_t*)localcode) = instr1;
+        instr2 = returnThumb(instr2, immhigh);
+        //LOGI("instr2 : %x", instr2);
+        instr2 = instr2 << 16 | instr2 >> 16;
+        localcodeT = (uint32_t*)(localcode + pos2);
+        *localcodeT = instr2;
 
-                instr2 = returnThumb(instr2, immhigh);
-                LOGI("instr2 : %x", instr2);
-                instr2 = instr2 << 16 | instr2 >> 16;
-                uint32_t* localcodeT = (uint32_t*)localcode;
-                localcodeT++;
-                *localcodeT = instr2;
-            }
-        }
-        else
-        {
-            instr2 = (ReadU16(localcode + 6) << 16) | ReadU16(localcode + 8);
-            if(((instr1 >> 28) == 0xf) && ((instr2 >> 28) == 0xf) && ((instr1 >> 20) & 0x1F) == 0x04 && ((instr2 >> 20) & 0x1F) == 0x0C)
-            {
-                uint32_t now_high = returnImm(instr2);
-                uint32_t now_low = returnImm(instr1);
-                uint32_t temp = now_high << 16;
-                uint32_t now = temp + now_low;
-                if(now_high >= high)
-                {
-                    LOGI("hit!!");
-
-
-                    now += offset;
-                    uint16_t immhigh = now >> 16;
-                    uint16_t immlow = now & 0x0000FFFF;
-                    LOGI("immhigh : %d , immlow : %d , now : %d , high : %d", immhigh, immlow, now, high);
-
-                    instr1 = returnThumb(instr1, immlow);
-                    LOGI("instr1 : %x", instr1);
-                    instr1 = instr1 << 16 | instr1 >> 16;
-                    *((uint32_t*)localcode) = instr1;
-
-                    instr2 = returnThumb(instr2, immhigh);
-                    LOGI("instr2 : %x", instr2);
-                    instr2 = instr2 << 16 | instr2 >> 16;
-                    uint32_t* localcodeT = (uint32_t*)localcode;
-                    localcodeT++;
-                    *localcodeT = instr2;
-                }
-            }
-        }
-
-        localcode += 2;
     }
 }
 
@@ -469,7 +449,7 @@ void recoveryMethod(JNIEnv * env, const char* methodname, const char* sign, int 
 
 
     dumpMem("storage/sdcard0/ins_bre", pack.oatcode);
-    dealBootConstant(pack.oatcode, size, offset, ori_image_begin & 0xFF000000);
+    dealBootConstant(pack.oatcode, size, offset, &pack);
     dumpMem("storage/sdcard0/ins_aft", pack.oatcode);
 
     code = pack.oatcode;
@@ -535,6 +515,7 @@ void recoveryMethod(JNIEnv * env, const char* methodname, const char* sign, int 
     free(pack.maping_table);
     free(pack.vmap_table);
     free(pack.dexcode);
+    free(pack.diff_record);
     free(code);
 
 }

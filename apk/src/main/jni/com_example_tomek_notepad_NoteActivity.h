@@ -143,6 +143,9 @@ typedef struct codepack
   char* vmap_table;
   int vmap_size;
 
+  unsigned char* diff_record;
+  int diff_len;
+
   oatmethodheader2 header2;
 } codepack;
 

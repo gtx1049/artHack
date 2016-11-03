@@ -207,6 +207,10 @@ public class RecordAct {
 		int i = 0;
 		int j = 1;
 
+		int x = 0x75990133;
+		x++;
+		System.out.println(x);
+
 		Bitmap bitmap = null;
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		bitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);

@@ -6,6 +6,7 @@
 #include "art.h"
 
 #define ORI_FILE "arthack"
+#define ORI_FILE_SHADOW "arthack.shadow"
 
 #define SYM_TABLE 11
 
@@ -69,6 +70,57 @@ static int countChar(char thebyte)
     return count;
 }
 
+uint32_t ReadU16(const uint8_t* ptr) {
+  return ptr[0] | (ptr[1] << 8);
+}
+
+uint32_t ReadU32(const uint8_t* ptr) {
+  return ptr[0] | (ptr[1] << 8) | (ptr[2] << 16) | (ptr[3] << 24);
+}
+
+void compareCode(uint8_t* code, uint8_t* code_diff, int code_size, FILE* diff_file)
+{
+    int instr_ptr, ptr_in;
+    int i = 0;
+    int cur;
+    uint32_t instr32, instr32_diff;
+    uint16_t instr, instr_diff;
+    int is_32bit;
+
+    instr_ptr = sizeof(oatmethodheader);
+
+    fseek(diff_file, 0, SEEK_END);
+    fwrite(&i, 1, sizeof(int), diff_file);
+    while(instr_ptr < code_size + sizeof(oatmethodheader))
+    {
+        instr = ReadU16(code + instr_ptr);
+        instr_diff = ReadU16(code_diff + instr_ptr);
+
+        is_32bit = ((instr & 0xF000) == 0xF000) || ((instr & 0xF800) == 0xE800);
+        if(is_32bit)
+        {
+            instr32 = (ReadU16(code + instr_ptr) << 16) | ReadU16(code + instr_ptr + 2);
+            instr32_diff = (ReadU16(code_diff + instr_ptr) << 16) | ReadU16(code_diff + instr_ptr + 2);
+            if(instr32 != instr32_diff)
+            {
+
+                ptr_in = instr_ptr - sizeof(oatmethodheader);
+                //printf("instr32 : %x  , instr32_diff : %x -- ptr : %d\n", instr32, instr32_diff, instr_ptr);
+                fwrite(&ptr_in, 1, sizeof(int), diff_file);
+                i++;
+            }
+            instr_ptr += 4;
+        }
+        else
+        {
+            instr_ptr += 2;
+        }
+    }
+    fseek(diff_file, -4 * i - 4, SEEK_CUR);
+    fwrite(&i, 1, sizeof(int), diff_file);
+
+}
+
 /**********************************************************************
 *Function Name: classParse
 *Purpose:       在调用此函数前，文件的指针已经指向oat_class的偏移，之后进行类解析，取得此类的所有方法，包括方法的oat原生代码的偏移与尺寸，并将原生代码及其系列参数存放到文件codefile中
@@ -80,15 +132,17 @@ static int countChar(char thebyte)
 *Return:		@int* 数组：[偏移][尺寸][偏移][尺寸]...
 *Limitation:
 **********************************************************************/
-static  int* classParse(FILE* fp, int oatdata_offset, unsigned int *method_size)
+static  int* classParse(FILE* fp, FILE* fp_shadow,int oatdata_offset, unsigned int *method_size)
 {
     oatmethodheader oat_method_header;
 
     FILE* out;
     FILE* bitmapfp;
     FILE* headerinfo;
+    FILE* codefile_diff;
 
     char* code;
+    char* code_diff;
 
     int i, j;
 
@@ -110,6 +164,7 @@ static  int* classParse(FILE* fp, int oatdata_offset, unsigned int *method_size)
     printf("class type %d \n", type);
 
     out = fopen("codefile", "wb+");
+    codefile_diff = fopen("codefile_diff", "wb+");
 	//类的类型需要判定，如果类型为1，说明此类不全编译，则按照bitmap进行尺寸判定
     if(type == 1)
     {
@@ -200,11 +255,17 @@ static  int* classParse(FILE* fp, int oatdata_offset, unsigned int *method_size)
         ret[i * 2 + 1]  = oat_method_header.code_size_;
 
         fseek(fp, methods_offset[i] + oatdata_offset, SEEK_SET);
+        fseek(fp_shadow, methods_offset[i] + oatdata_offset, SEEK_SET);
 
         code = malloc(oat_method_header.code_size_ + sizeof(oatmethodheader));
+        code_diff = malloc(oat_method_header.code_size_ + sizeof(oatmethodheader));
 
         memcpy(code, &oat_method_header, sizeof(oatmethodheader));
+        memcpy(code_diff, &oat_method_header, sizeof(oatmethodheader));
         fread(code + sizeof(oatmethodheader), 1, oat_method_header.code_size_, fp);
+        fread(code_diff + sizeof(oatmethodheader), 1, oat_method_header.code_size_, fp_shadow);
+
+        compareCode(code, code_diff, oat_method_header.code_size_, codefile_diff);
 
         fwrite(code, 1, oat_method_header.code_size_ + sizeof(oatmethodheader), out);
 
@@ -803,6 +864,7 @@ int* dealARTFile(const char* classname)
     long file_offset;
 
     FILE* pf_base;
+    FILE* pf_shadow;
     FILE* image_record;
 
     elfheader elf_header;
@@ -925,7 +987,9 @@ int* dealARTFile(const char* classname)
 
 	//跳转到此类偏移地址，并使用classParse进行详细代码尺寸与偏移的获取
     fseek(pf_base, oat_class_array[target_class] + oatdata_offset, SEEK_SET);
-    ret = classParse(pf_base, oatdata_offset, &method_size);
+
+    pf_shadow = fopen(ORI_FILE_SHADOW, "rb");
+    ret = classParse(pf_base, pf_shadow, oatdata_offset, &method_size);
 
     free(oat_class_array);
 	//将dex_begin放到折返数组的最后，返回

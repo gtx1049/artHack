@@ -110,6 +110,16 @@ def insertToLib(classname, password):
 	
 	headerinfo.close()
 	
+	codediff = open('codefile_diff', 'r+b')
+	filelen = os.path.getsize('codefile_diff')
+	print 'codefile_diff len' + str(filelen)
+	lib.write(struct.pack('i', filelen))
+	for i in range(0, filelen):
+		b = codediff.read(1)
+		lib.write(b)
+	
+	codediff.close()
+	
 	return
 
 def modifyOat(targetfile, method_ret, method_size):
